@@ -5,7 +5,6 @@ _CONF_FILE="/etc/jailspaces/js.conf"
 check_config() {
 	[ -f "$_PHP_FPM_CONF_TEMPLATE" ] || die "$_PHP_FPM_CONF_TEMPLATE missing"
 	[ -f "$_NGINX_CONF_TEMPLATE" ]   || die "$_NGINX_CONF_TEMPLATE missing"
-	# TODO: 
 }
 
 get_user_list() {

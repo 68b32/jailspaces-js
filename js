@@ -1246,8 +1246,10 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
         list:
             List all usernames associated with webspaces
 
-        create <username>:
-            Create a webspace, and associate with <username>
+        create <username> [FQDN0 [FQDN1 [...]]]:
+            Create a webspace associated with <username> with
+            domains FQDN0 - FQDNn. If the domains are not provided
+            from the commandline, they need to be provided interactively.
 
         status <username>:
             Show status of webspace associated with <username>
@@ -1260,8 +1262,11 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
             Disable webspace associated with <username>
             -n prevents reload of services
 
-        delete <username>:
-            Delete webspace associated with <username>
+        delete <username> [-Y]:
+            Delete webspace associated with <username>.
+            If -Y is provided, none questions will be asked
+            and the account and all data of this webspace will
+            be deleted.
 
         fixperm <username>:
             Set permissions and ownerships in PHP-FPM chroot
@@ -1282,7 +1287,7 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
             undbind:
                 Unmount all binds for <username>.
 
-            clean:
+            clean [-Y]:
                 Unmount all binds for <username> and delete
                 mountpoints for binds. Without -Y it will
                 just list the pathes that would be deleted and

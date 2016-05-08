@@ -1,0 +1,56 @@
+[@USERNAME@]
+user = $pool
+group = $pool
+
+listen = /var/run/php5-fpm-$pool.sock
+listen.owner = nginx
+listen.group = nginx
+
+pm = ondemand
+pm.process_idle_timeout = 10
+pm.max_children = 5
+;pm = dynamic
+;pm.max_children = 5
+;pm.start_servers = 2
+;pm.min_spare_servers = 1
+;pm.max_spare_servers = 3
+ 
+pm.status_path = /php5-fpm-status 
+ping.path = /php5-fpm-ping
+
+access.log = /home/www/$pool/chroot/log/php5-fpm-pool.log 
+slowlog = /home/www/$pool/chroot/log/php5-fpm-slow.log
+request_slowlog_timeout = 15s
+
+chroot = /home/www/$pool/chroot/
+ 
+chdir = /
+
+# Flags & limits
+php_flag[display_errors] = off
+php_admin_flag[log_errors] = on
+php_admin_flag[expose_php] = off
+php_admin_value[memory_limit] = 32M
+php_admin_value[post_max_size] = 24M
+php_admin_value[upload_max_filesize] = 20M
+php_admin_value[cgi.fix_pathinfo] = 0
+
+# Session
+php_admin_value[session.entropy_length] = 1024
+php_admin_value[session.cookie_httponly] = on
+php_admin_value[session.hash_function] = sha512
+php_admin_value[session.hash_bits_per_character] = 6
+php_admin_value[session.gc_probability] = 1
+php_admin_value[session.gc_divisor] = 1000
+php_admin_value[session.gc_maxlifetime] = 1440
+
+# Pathes
+php_admin_value[include_path] = .
+php_admin_value[open_basedir] = /data-$pool/:/tmp/misc/:/tmp/upload/
+php_admin_value[sys_temp-dir] = /tmp/misc
+php_admin_value[upload_tmp_dir] = /tmp/upload
+php_admin_value[session.save_path] = /tmp/session
+php_admin_value[soap.wsdl_cache_dir] = /tmp/wsdl
+php_admin_value[sendmail_path] = /bin/sendmail -f -i
+php_admin_value[session.entropy_file] = /dev/urandom
+php_admin_value[openssl.capath] = /etc/ssl/certs

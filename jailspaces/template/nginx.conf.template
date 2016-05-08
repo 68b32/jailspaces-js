@@ -1,0 +1,33 @@
+server {
+        listen 0.0.0.0:80;
+        listen [::]:80;
+	server_name  @DOMAINS@;
+        include /etc/jailspaces/nginx/acme.conf;
+        location / {
+                return 301 https://$host$request_uri;
+        }
+}
+
+
+server {
+	include /etc/wss/nginx/tls.conf;
+	ssl_certificate /home/certmanager/crt/@USERNAME@.crt;
+        server_name  @DOMAINS@;
+
+        root /home/www/@USERNAME@/chroot/data-@USERNAME@;
+        index index.html index.htm index.php;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+        location ~ \.php$ {
+		try_files  $uri =404;
+                include /etc/nginx/fastcgi_params;
+                fastcgi_pass unix:/var/run/php5-fpm-@USERNAME@.sock;
+                fastcgi_param SCRIPT_FILENAME /data-@USERNAME@$fastcgi_script_name;
+        }
+
+        include /etc/jailspaces/nginx/acme.conf;
+}
+

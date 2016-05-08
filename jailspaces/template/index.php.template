@@ -1,0 +1,24 @@
+<?php
+	isset($_GET['PHPINFO']) && phpinfo() && die;
+?>
+<html>
+	<head>
+		<title>@USERNAME@</title>
+	</head>
+
+	<body>
+		<h1>JailSpace @USERNAME@</h1>
+		
+		<p>
+		This webspace was just created.
+		</p>
+
+
+		<ul>
+			<li><a href="?PHPINFO">Inspect PHP configuration</a></li>
+			<li><a href="https://www.ssllabs.com/ssltest/analyze.html?d=<?php echo urlencode($_SERVER['HTTP_HOST']); ?>&amp;hideResults=on&amp;clearCache=on">Test SSL configuration</a></li>
+		<ul>
+
+	</body>
+
+</html>

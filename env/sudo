@@ -1,1 +1,0 @@
-certmanager ALL= NOPASSWD: /usr/sbin/service nginx restart

@@ -1,0 +1,1 @@
+certmanager ALL= NOPASSWD: /bin/systemctl reload-or-restart nginx

@@ -10,7 +10,7 @@ server {
 
 
 server {
-	include /etc/wss/nginx/tls.conf;
+	include /etc/jailspaces/nginx/tls.conf;
 	ssl_certificate /home/certmanager/crt/@USERNAME@.crt;
         server_name  @DOMAINS@;
 

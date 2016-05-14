@@ -1264,7 +1264,7 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
 
         delete <username> [-Y]:
             Delete webspace associated with <username>.
-            If -Y is provided, none questions will be asked
+            If -Y is provided, no questions will be asked
             and the account and all data of this webspace will
             be deleted.
 
@@ -1290,7 +1290,7 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
             clean [-Y]:
                 Unmount all binds for <username> and delete
                 mountpoints for binds. Without -Y it will
-                just list the pathes that would be deleted and
+                just list the paths that would be deleted and
                 ask for confirmation interactively.
 
         binds systemd list|create|update|clean [-Y]
@@ -1315,7 +1315,7 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
 
             clean [-Y]:
                 Delete all unit files managed by this script. Without -Y it will
-                just list the pathes that would be deleted and
+                just list the paths that would be deleted and
                 ask for confirmation interactively.
 
 

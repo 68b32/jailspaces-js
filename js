@@ -1284,7 +1284,7 @@ Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
                 Mount all binds for <username>'s chroot. Mountpoints
                 will be created if they do not exist.
 
-            undbind:
+            unbind:
                 Unmount all binds for <username>.
 
             clean [-Y]:

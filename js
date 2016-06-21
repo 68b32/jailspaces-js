@@ -1239,7 +1239,7 @@ case "$_OPT_ACTION" in
 	help)
 
 cat <<END
-Usage: $0 <command> [<subcommand [<subcommand>]] [<username>] [-n|-Y]
+Usage: $0 <command> [<subcommand> [<subcommand>]] [<username>] [-n|-Y]
 
     <command> can be one of...
     

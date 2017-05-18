@@ -14,16 +14,16 @@ pm.max_children = 5
 ;pm.start_servers = 2
 ;pm.min_spare_servers = 1
 ;pm.max_spare_servers = 3
- 
-pm.status_path = /php5-fpm-status 
+
+pm.status_path = /php5-fpm-status
 ping.path = /php5-fpm-ping
 
-access.log = /home/www/$pool/chroot/log/php5-fpm-pool.log 
+access.log = /home/www/$pool/chroot/log/php5-fpm-pool.log
 slowlog = /home/www/$pool/chroot/log/php5-fpm-slow.log
 request_slowlog_timeout = 15s
 
 chroot = /home/www/$pool/chroot/
- 
+
 chdir = /
 
 # Flags & limits
@@ -46,7 +46,7 @@ php_admin_value[session.gc_maxlifetime] = 1440
 
 # Pathes
 php_admin_value[include_path] = .
-php_admin_value[open_basedir] = /data-$pool/:/tmp/misc/:/tmp/upload/
+php_admin_value[open_basedir] = /data-$pool/:/tmp/misc/:/tmp/upload/:/dev/urandom
 php_admin_value[sys_temp-dir] = /tmp/misc
 php_admin_value[upload_tmp_dir] = /tmp/upload
 php_admin_value[session.save_path] = /tmp/session

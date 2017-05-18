@@ -122,7 +122,7 @@ fix_or_check_file_permissions() {
 	local f=1
 	local returnValue=0
 	[ -n "$2" ] && fix=true
-	
+
 	check_file_permissions "$uUSERNAME" | while read check; do
 		f=1; for field in file exists perm owner type iperm iowner itype; do eval "f_$field=\"`echo $check | cut -d, -f$f`\""; f=$(($f+1)); done;
 		local fullPath="$uCHROOT$f_file"
@@ -152,7 +152,7 @@ fix_or_check_file_permissions() {
 			else
 				printf "$pf1" "" "$msg"
 			fi
-		fi	
+		fi
 
 		if ! $f_owner; then
 			local msg="$f_file has wrong ownership (must $f_iowner)"
@@ -170,7 +170,7 @@ fix_or_check_file_permissions() {
 			local msg=""
 			[ -f "$fullPath" ] && msg="$f_file is not a directory"
 			[ -d "$fullPath" ] && msg="$f_file is not a regular file"
-			
+
 			if $fix; then
 				printf "$pf2" "$msg --> please fix manually" "`status y '' 'SKIPPED'`"
 			else
@@ -225,7 +225,7 @@ get_base_path() {
         local path="$1"
         local lastPath=""
         while [ "$path" != "/" ]; do lastPath=$path; path=`dirname $path`; done;
-        echo "$lastPath"	
+        echo "$lastPath"
 }
 
 is_any_unbound() {
@@ -276,7 +276,7 @@ reload_services() {
 
 reset_nscd() {
 	nscd --invalidate passwd &> /dev/null
-	nscd --invalidate group &> /dev/null	
+	nscd --invalidate group &> /dev/null
 }
 
 stop() {
@@ -288,14 +288,14 @@ le_cmd() {
 	if $_LOW_PRIV_TLS_REFRESH; then
 		eval "$1"
 	else
-		su -c "$1" "$_LETS_ENCRYPT_USER"	
+		su -c "$1" "$_LETS_ENCRYPT_USER"
 	fi
-	
+
 	return $?
 }
 
 cert_get_domains() {
-	
+
 	local commonName="`openssl x509 -noout -text -in \"$1\" | grep 'Subject: CN=' | cut -d= -f2`"
 	[ -n "$commonName" ] && echo $commonName
 
@@ -306,7 +306,7 @@ cert_get_domains() {
 		`openssl x509 -noout -text -in "$1" | \
 		grep -A1 'X509v3 Subject Alternative Name:' \
 		| tail -n1 | tr -d '[:space:]' | \
-		sed -e 's/DNS://g' -e 's/,/ /g'`; do 
+		sed -e 's/DNS://g' -e 's/,/ /g'`; do
 		[ "$d" != "$commonName" ] && echo $d; done;
 }
 
@@ -474,11 +474,11 @@ case "$1" in
 	enable|disable)
 		_OPT_ACTION="$1"
 		_OPT_USERNAME="$2"
-		_OPT_RELOAD=true		
+		_OPT_RELOAD=true
 		if [ -n "$3" ]; then
 			[ "$3" != "-n" ] && _OPT_ACTION="help"
 			_OPT_RELOAD=false
-		fi		
+		fi
 		;;
 	binds)
 		_OPT_ACTION="binds"
@@ -535,11 +535,11 @@ case "$1" in
 				_OPT_ACTION_TLS_FORCEREFRESH=false
 				[ "$2" = "forcerefresh" ] && _OPT_ACTION_TLS_FORCEREFRESH=true
 				_OPT_USERNAME="$3"
-				_OPT_RELOAD=true		
+				_OPT_RELOAD=true
 				if [ -n "$4" ]; then
 					[ "$4" != "-n" ] && _OPT_ACTION="help"
 					_OPT_RELOAD=false
-				fi	
+				fi
 				;;
 			*) _OPT_ACTION="help";;
 		esac
@@ -647,7 +647,7 @@ case "$_OPT_ACTION" in
 		printf "$pf0" "USERGROUP"      "$statusMsg" "`status $status_usergroup_exists 'OK' ''         'MISSING'`"
 		printf "$pf0" "PHP-FPM-CHROOT" "$uCHROOT"   "`status $status_chroot_exists    'OK' ''         'MISSING'`"
 		printf "$pf0" "PHP-FPM-POOL"   "$uPOOL"     "`status $status_pool_exists      'ENABLED' 'DISABLED' 'MISSING'`"
-		printf "$pf0" "NGINX CONFIG"   "$uNGINX"    "`status $status_nginx_exists     'ENABLED' 'DISABLED' 'MISSING'`"		
+		printf "$pf0" "NGINX CONFIG"   "$uNGINX"    "`status $status_nginx_exists     'ENABLED' 'DISABLED' 'MISSING'`"
 
 		if [ "$status_nginx_exists" != "r" ]; then
 			printf "$pf0" "FQDNs" "`get_FQDNs_for_user \"$uUSERNAME\" | wc -l`"
@@ -689,8 +689,8 @@ case "$_OPT_ACTION" in
 					[ "$status_nginx_exists" = "r" ] && printf "$pf0" "TLS CERTIFICATE" "Unknown (NGINX config missing)" "`status y '' 'UNKNOWN'`"
 				fi
 			fi
-		fi		
-		
+		fi
+
 		if [ "$status_chroot_exists" != "r" ]; then
 			printf "$pf0" "FILE PERMISSIONS" "`[ "$status_fileperms" = "g" ] && echo -n \"All correct\" || echo -n \"Incorrect\"`" "`status $status_fileperms 'OK' '' 'INCORRECT'`"
 			fix_or_check_file_permissions "$uUSERNAME"
@@ -714,7 +714,7 @@ case "$_OPT_ACTION" in
 		for check in $checkList; do [ "${!check}" = "r" ] && stop 1; done
 		stop 0
 		;;
-		
+
 	fixperm)
 		if [ "$status_chroot_exists" == "r" ]; then
 			printf "$pf2" "Chroot does not exist. Please create manually." "`status r '' '' 'ERROR'`"
@@ -742,7 +742,7 @@ case "$_OPT_ACTION" in
 
 			# Update systemd unit files
 			[ "$_OPT_ACTION_BIND_SYSTEMD" = "update" ] && $0 _INTERNAL_ binds systemd clean -Y && $0 _INTERNAL_ binds systemd create && systemctl daemon-reload && stop 0
-			
+
 			stop 1
 		fi
 
@@ -769,7 +769,7 @@ case "$_OPT_ACTION" in
 #				if [ "$status_nginx_exists" = "g" -o "$status_pool_exists" = "g" ]; then
 #					printf "$pf2" "Please disable webspace first." "`status r '' '' 'ERROR'`"
 #					stop 1
-#				fi        		
+#				fi
 
                 if [ "$_OPT_ACTION_BIND" = "bind" ] && ! is_bound "$uCHROOT$bind"; then
                 		# Create mointpoints
@@ -788,7 +788,7 @@ case "$_OPT_ACTION" in
                 				printf "$pf2" "Creating mountpoint $uCHROOT$bind (file)" "`status $status 'DONE' '' 'FAILED'`"
                 			fi
                 		fi
-						
+
 						if [ $returnValue -eq 0 ]; then
 							status="r"
 	                        mount --bind  "$bind" "$uCHROOT$bind" && status="g" || returnValue=1
@@ -820,7 +820,7 @@ case "$_OPT_ACTION" in
         		$inList || allPathes+=("$uCHROOT$deletePath")
 
         		if ! $inList; then
-					
+
 	        		if [ ! -e "$uCHROOT$deletePath" ]; then
 	        			printf "$pf2" "$uCHROOT$deletePath - does not exist" "`status y '' 'SKIPPED'`"
 	        			continue
@@ -834,7 +834,7 @@ case "$_OPT_ACTION" in
         			deletePathes+=("$uCHROOT$deletePath")
         		fi
         	done
-        	
+
         	[ "${#deletePathes}" -eq 0 ] && stop $returnValue
 
 
@@ -868,7 +868,7 @@ case "$_OPT_ACTION" in
 				fi
 			done
 		fi
-        
+
         stop $returnValue
 		;;
 
@@ -877,7 +877,7 @@ case "$_OPT_ACTION" in
 		[ "$status_pool_exists"  = "r" ] && printf "$pf2" "\"$uPOOL\" missing." "`status r '' '' 'ERROR'`" && stop 1
 		[ "$status_nginx_exists" = "r" ] && printf "$pf2" "\"$uNGINX\" missing." "`status r '' '' 'ERROR'`" && stop 1
 		[ "$status_pool_exists" != "$status_nginx_exists" ] && printf "$pf2" "POOL and NGINX config not in same state." "`status r '' '' 'ERROR'`" && stop 1
-		
+
 		if [ "$_OPT_ACTION" = "enable" ]; then
 			[ "$status_pool_exists" = "g" ] && printf "$pf2" "Webspace already enabled." "`status y '' 'SKIPPED' ''`" && stop 0
 
@@ -901,7 +901,7 @@ case "$_OPT_ACTION" in
 	create)
 		returnValue=0
 
-		reset_nscd	
+		reset_nscd
 
 		! user_is_valid "$_OPT_USERNAME" && printf "$pf2" "Invalid username ([a-zA-Z0-9]{4,10})" "`status r '' '' 'ERROR'`" && stop 1
 
@@ -916,7 +916,7 @@ case "$_OPT_ACTION" in
 		eval "${_NGINX_ADD_GROUP_CMD//@USERNAME@/$_OPT_USERNAME}" && status="g"
 		printf "$pf2" "Run _NGINX_ADD_GROUP_CMD..." "`status $status 'DONE' '' 'FAILED'`"
 		[ "$status" = "g" ] || returnValue=1
-	
+
 
 
 		! id "$_OPT_USERNAME" &> /dev/null && printf "$pf2" "User \"$_OPT_USERNAME\" not found in system." "`status r '' '' 'ERROR'`" && stop 1
@@ -990,7 +990,7 @@ case "$_OPT_ACTION" in
 			printf "$pf2" "Please disable webspace first." "`status r '' '' 'ERROR'`"
 			stop 1
 		fi
-		
+
 		deleteCmd[0]="rm \"${_NGINX_CONF//@USERNAME@/$uUSERNAME}.disabled\""
 		deleteCmd[1]="rm \"${_PHP_FPM_CONF//@USERNAME@/$uUSERNAME}.disabled\""
 		deleteCmd[2]="rm -f \"$uCERT\""
@@ -1026,7 +1026,7 @@ case "$_OPT_ACTION" in
 
 				for i in `seq 0 $((${#deleteCmd[@]}-1))`; do
 					cmd_status="r"
-					eval "${deleteCmd[$i]}"					
+					eval "${deleteCmd[$i]}"
 					[ "$?" -eq 0 ] && cmd_status="g"
 					printf "$pf2" "${deleteCmd[$i]}" "`status "$cmd_status" 'DONE' '' 'FAILED'`"
 					[ "$cmd_status" = "g" ] || returnValue=1
@@ -1043,7 +1043,7 @@ case "$_OPT_ACTION" in
 		$0 _INTERNAL_ binds systemd update > /dev/null && status="g"
 		[ "$status" = "g" ] || returnValue=1
 		printf "$pf2" "Update systemd units for chroot binds..." "`status $status 'DONE' '' 'FAILED'`"
-		
+
 		stop $returnValue
 		;;
 
@@ -1058,7 +1058,7 @@ case "$_OPT_ACTION" in
 			printf "$pf2" "Could not run as \"$_LETS_ENCRYPT_USER\"" "`status r '' '' 'ERROR'`"
 			stop 1
 		fi
-		
+
 		# Check/setup _LETS_ENCRYPT_CRT/CSR/CHALLENGE_DIR
 		for d in CRT CSR CHALLENGE; do
 			dir="`eval echo \\$_LETS_ENCRYPT_${d}_DIR`"
@@ -1109,7 +1109,7 @@ case "$_OPT_ACTION" in
 				fi;
 
 				status_create="r"
-				openssl genrsa $_LETS_ENCRYPT_KEYLENGTH > "$keyPath" && status_create="g"		
+				openssl genrsa $_LETS_ENCRYPT_KEYLENGTH > "$keyPath" && status_create="g"
 				printf "$pf2" "Generate _LETS_ENCRYPT_${k}_KEY" "`status $status_create 'DONE' '' 'FAILED'`"
 				[ "$status_create" = "g" ] && status_create="r" && chown "$create_owner" "$keyPath" && chmod "$create_mode" "$keyPath" && status_create="g"
 				printf "$pf2" "Setting permissions to $create_owner mode $create_mode" "`status $status_create 'DONE' '' 'FAILED'`"
@@ -1127,7 +1127,7 @@ case "$_OPT_ACTION" in
 
 		if [ "$status_dhparams_exists" = "y" ]; then
 			status_create="r"
-			openssl dhparam -out "$_LETS_ENCRYPT_DHPARAMS" $_LETS_ENCRYPT_DHPARAMS_LENGTH > "$_LETS_ENCRYPT_DHPARAMS" && status_create="g"		
+			openssl dhparam -out "$_LETS_ENCRYPT_DHPARAMS" $_LETS_ENCRYPT_DHPARAMS_LENGTH > "$_LETS_ENCRYPT_DHPARAMS" && status_create="g"
 			printf "$pf2" "Generating _LETS_ENCRYPT_DHPARAMS..." "`status $status_create 'DONE' '' 'FAILED'`"
 			[ "$status_create" = "g" ] && status_create="r" && chown "$_LETS_ENCRYPT_USER:$_NGINX_USERGROUP" "$_LETS_ENCRYPT_DHPARAMS" && chmod "440" "$_LETS_ENCRYPT_DHPARAMS" && status_create="g"
 			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
@@ -1143,7 +1143,7 @@ case "$_OPT_ACTION" in
 
 		if [ "$status_crt_intermediate_exists" = "y" ]; then
 			status_create="r"
-			wget -O- "$_LETS_ENCRYPT_INTERMEDIATE_URL" > "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"		
+			wget -O- "$_LETS_ENCRYPT_INTERMEDIATE_URL" > "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
 			printf "$pf2" "Downloading _LETS_ENCRYPT_INTERMEDIATE..." "`status $status_create 'DONE' '' 'FAILED'`"
 			[ "$status_create" = "g" ] && status_create="r" && chown "$_LETS_ENCRYPT_USER:$_NGINX_USERGROUP" "$_LETS_ENCRYPT_INTERMEDIATE" && chmod "440" "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
 			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
@@ -1152,7 +1152,7 @@ case "$_OPT_ACTION" in
 
 
 
-		
+
 		if [ "$_OPT_ACTION_TLS" = "refresh" ]; then
 
 			[ "$status_nginx_exists" = "r" ] && printf "$pf2" "NGINX config could not be read" "`status r '' '' 'ERROR'`" && stop 1
@@ -1188,12 +1188,8 @@ case "$_OPT_ACTION" in
 			status="r"
 			csr_path="$_LETS_ENCRYPT_CSR_DIR/$uUSERNAME.csr"
 
-			if [ "`echo \"$uFQDNS\" | wc -w`" -eq 1 ]; then
-				le_cmd "openssl req -new -sha256 -key \"$_LETS_ENCRYPT_SERVER_KEY\" -subj \"/CN=$uFQDNS\" > \"$csr_path\"" && status="g"
-			else
-				san="DNS:`echo $uFQDNS | sed -e 's/ /,DNS:/g'`"
-				le_cmd "openssl req -new -sha256 -key \"$_LETS_ENCRYPT_SERVER_KEY\" -subj \"/\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"[SAN]\nsubjectAltName=$san\")) > \"$csr_path\"" && status="g"
-			fi
+			san="DNS:`echo $uFQDNS | sed -e 's/ /,DNS:/g'`"
+			le_cmd "openssl req -new -sha256 -key \"$_LETS_ENCRYPT_SERVER_KEY\" -subj \"/\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"[SAN]\nsubjectAltName=$san\")) > \"$csr_path\"" && status="g"
 
 			printf "$pf2" "Creating CSR for $uUSERNAME..." "`status $status 'OK' '' 'FAILED'`"
 			[ "$status" = "r" ] && stop 1
@@ -1242,7 +1238,7 @@ cat <<END
 Usage: $0 <command> [<subcommand> [<subcommand>]] [<username>] [-n|-Y]
 
     <command> can be one of...
-    
+
         list:
             List all usernames associated with webspaces
 
@@ -1304,9 +1300,9 @@ Usage: $0 <command> [<subcommand> [<subcommand>]] [<username>] [-n|-Y]
 
             create:
                 Create systemd units for all users.
-            
+
             update:
-                Same as 
+                Same as
 
                   $0 binds systemd clean -Y && $0 binds systemd create
 

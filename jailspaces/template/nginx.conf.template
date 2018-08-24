@@ -24,7 +24,7 @@ server {
         location ~ \.php$ {
 		try_files  $uri =404;
                 include /etc/nginx/fastcgi_params;
-                fastcgi_pass unix:/var/run/php5-fpm-@USERNAME@.sock;
+                fastcgi_pass unix:/var/run/php-fpm-@USERNAME@.sock;
                 fastcgi_param SCRIPT_FILENAME /data-@USERNAME@$fastcgi_script_name;
         }
 

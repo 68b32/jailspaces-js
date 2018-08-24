@@ -318,20 +318,20 @@ cert_get_expiry() {
 
 create_systemd_units() {
 
-	[ ! -f "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" ] && \
-	cat <<- END > "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" && \
-	echo -e "Created ${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service"
-	# PHP-FPM-CHROOT-BIND
-	[Unit]
-	Description=Remount bind for PHP-FPM chroot readonly
-	DefaultDependencies=no
-	After=%i.mount
-	Before=local-fs.target
-
-	[Service]
-	Type=oneshot
-	ExecStart=/bin/mount -o remount,bind,ro /%I
-	END
+#	[ ! -f "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" ] && \
+#	cat <<- END > "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" && \
+#	echo -e "Created ${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service"
+#	# PHP-FPM-CHROOT-BIND
+#	[Unit]
+#	Description=Remount bind for PHP-FPM chroot readonly
+#	DefaultDependencies=no
+#	After=%i.mount
+#	Before=local-fs.target
+#
+#	[Service]
+#	Type=oneshot
+#	ExecStart=/bin/mount -o remount,bind,ro /%I
+#	END
 
 	local chroot=""
 	local eChroot=""
@@ -344,11 +344,11 @@ create_systemd_units() {
 	echo -e "Created ${_SYSTEMD_UNIT_DIR}/php-chroots.target"
 	# PHP-FPM-CHROOT-BIND
 	[Install]
-	WantedBy=php5-fpm.service
+	WantedBy=${_PHP_FPM_SERVICE}.service
 
 	[Unit]
 	Description=Bind all binds for all PHP-FPM chroots
-	Before=php5-fpm.service
+	Before=${_PHP_FPM_SERVICE}.service
 	END
 
 	get_user_list | while read user; do
@@ -373,7 +373,6 @@ create_systemd_units() {
 			# PHP-FPM-CHROOT-BIND
 			[Unit]
 			Description=Bind ${bind} for PHP-FPM chroot ${chroot}
-			Requires=rebindreadonly@${mountpoint}.service
 			Requires=php-chroot-create-mountpoint-file-${eBind}@${eChroot}.service
 			Requires=php-chroot-create-mountpoint-dir-${eBind}@${eChroot}.service
 			BindsTo=php-chroot-${eChroot}.target
@@ -382,7 +381,7 @@ create_systemd_units() {
 			What=${bind}
 			Where=${chroot}${bind}
 			Type=none
-			Options=bind
+			Options=bind,ro
 			END
 
 			[ ! -f "${_SYSTEMD_UNIT_DIR}/php-chroot-create-mountpoint-file-${eBind}@.service" ] && \
@@ -1134,21 +1133,21 @@ case "$_OPT_ACTION" in
 			[ "$status_create" != "g" ] && stop 1
 		fi
 
-		# Check/setup intermediate certificate
-		status_crt_intermediate_exists="y"
-		le_cmd "[ -r \"$_LETS_ENCRYPT_INTERMEDIATE\" ]" && status_crt_intermediate_exists="g"
-		[ "$status_crt_intermediate_exists" = "y" -a "$_OPT_ACTION_TLS" != "init" ] && status_crt_intermediate_exists="r"
-		printf "$pf2" "_LETS_ENCRYPT_INTERMEDIATE exists and readable by $_LETS_ENCRYPT_USER" "`status $status_crt_intermediate_exists 'YES' 'NO' 'NO'`"
-		[ "$status_crt_intermediate_exists" = "r" ] && stop 1
+##		# Check/setup intermediate certificate
+##		status_crt_intermediate_exists="y"
+##		le_cmd "[ -r \"$_LETS_ENCRYPT_INTERMEDIATE\" ]" && status_crt_intermediate_exists="g"
+##		[ "$status_crt_intermediate_exists" = "y" -a "$_OPT_ACTION_TLS" != "init" ] && status_crt_intermediate_exists="r"
+##		printf "$pf2" "_LETS_ENCRYPT_INTERMEDIATE exists and readable by $_LETS_ENCRYPT_USER" "`status $status_crt_intermediate_exists 'YES' 'NO' 'NO'`"
+##		[ "$status_crt_intermediate_exists" = "r" ] && stop 1
 
-		if [ "$status_crt_intermediate_exists" = "y" ]; then
-			status_create="r"
-			wget -O- "$_LETS_ENCRYPT_INTERMEDIATE_URL" > "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
-			printf "$pf2" "Downloading _LETS_ENCRYPT_INTERMEDIATE..." "`status $status_create 'DONE' '' 'FAILED'`"
-			[ "$status_create" = "g" ] && status_create="r" && chown "$_LETS_ENCRYPT_USER:$_NGINX_USERGROUP" "$_LETS_ENCRYPT_INTERMEDIATE" && chmod "440" "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
-			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
-			[ "$status_create" != "g" ] && stop 1
-		fi
+##		if [ "$status_crt_intermediate_exists" = "y" ]; then
+##			status_create="r"
+##			wget -O- "$_LETS_ENCRYPT_INTERMEDIATE_URL" > "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
+##			printf "$pf2" "Downloading _LETS_ENCRYPT_INTERMEDIATE..." "`status $status_create 'DONE' '' 'FAILED'`"
+##			[ "$status_create" = "g" ] && status_create="r" && chown "$_LETS_ENCRYPT_USER:$_NGINX_USERGROUP" "$_LETS_ENCRYPT_INTERMEDIATE" && chmod "440" "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
+##			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
+##			[ "$status_create" != "g" ] && stop 1
+##		fi
 
 
 
@@ -1207,7 +1206,7 @@ case "$_OPT_ACTION" in
 			printf "$pf2" "Request certificate for $uUSERNAME" "`status $status 'OK' '' 'FAILED'`"
 			[ "$status" = "r" ] && le_cmd "rm -f $uCERT.signed" && stop 1
 
-			status="r" && le_cmd "cat \"$uCERT.signed\" \"$_LETS_ENCRYPT_INTERMEDIATE\" > \"$uCERT.chained\"" && status="g"
+			status="r" && le_cmd "cat \"$uCERT.signed\" > \"$uCERT.chained\"" && status="g"
 			printf "$pf2" "Chaining certifiacte..." "`status $status 'OK' '' 'FAILED'`"
 			[ "$status" = "r" ] && le_cmd "rm -f $uCERT.chained" && stop 1
 

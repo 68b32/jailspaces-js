@@ -317,22 +317,6 @@ cert_get_expiry() {
 
 
 create_systemd_units() {
-
-#	[ ! -f "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" ] && \
-#	cat <<- END > "${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service" && \
-#	echo -e "Created ${_SYSTEMD_UNIT_DIR}/rebindreadonly@.service"
-#	# PHP-FPM-CHROOT-BIND
-#	[Unit]
-#	Description=Remount bind for PHP-FPM chroot readonly
-#	DefaultDependencies=no
-#	After=%i.mount
-#	Before=local-fs.target
-#
-#	[Service]
-#	Type=oneshot
-#	ExecStart=/bin/mount -o remount,bind,ro /%I
-#	END
-
 	local chroot=""
 	local eChroot=""
 	local bind=""
@@ -765,11 +749,6 @@ case "$_OPT_ACTION" in
 					continue
         		fi
 
-#				if [ "$status_nginx_exists" = "g" -o "$status_pool_exists" = "g" ]; then
-#					printf "$pf2" "Please disable webspace first." "`status r '' '' 'ERROR'`"
-#					stop 1
-#				fi
-
                 if [ "$_OPT_ACTION_BIND" = "bind" ] && ! is_bound "$uCHROOT$bind"; then
                 		# Create mointpoints
                 		if [ ! -e "$uCHROOT$bind" ]; then
@@ -1132,25 +1111,6 @@ case "$_OPT_ACTION" in
 			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
 			[ "$status_create" != "g" ] && stop 1
 		fi
-
-##		# Check/setup intermediate certificate
-##		status_crt_intermediate_exists="y"
-##		le_cmd "[ -r \"$_LETS_ENCRYPT_INTERMEDIATE\" ]" && status_crt_intermediate_exists="g"
-##		[ "$status_crt_intermediate_exists" = "y" -a "$_OPT_ACTION_TLS" != "init" ] && status_crt_intermediate_exists="r"
-##		printf "$pf2" "_LETS_ENCRYPT_INTERMEDIATE exists and readable by $_LETS_ENCRYPT_USER" "`status $status_crt_intermediate_exists 'YES' 'NO' 'NO'`"
-##		[ "$status_crt_intermediate_exists" = "r" ] && stop 1
-
-##		if [ "$status_crt_intermediate_exists" = "y" ]; then
-##			status_create="r"
-##			wget -O- "$_LETS_ENCRYPT_INTERMEDIATE_URL" > "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
-##			printf "$pf2" "Downloading _LETS_ENCRYPT_INTERMEDIATE..." "`status $status_create 'DONE' '' 'FAILED'`"
-##			[ "$status_create" = "g" ] && status_create="r" && chown "$_LETS_ENCRYPT_USER:$_NGINX_USERGROUP" "$_LETS_ENCRYPT_INTERMEDIATE" && chmod "440" "$_LETS_ENCRYPT_INTERMEDIATE" && status_create="g"
-##			printf "$pf2" "Setting permissions to $_LETS_ENCRYPT_USER:$_NGINX_USERGROUP mode 440" "`status $status_create 'DONE' '' 'FAILED'`"
-##			[ "$status_create" != "g" ] && stop 1
-##		fi
-
-
-
 
 		if [ "$_OPT_ACTION_TLS" = "refresh" ]; then
 

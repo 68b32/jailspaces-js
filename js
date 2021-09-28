@@ -187,10 +187,11 @@ install_template() {
 	local destination="$2"
 	local owner="$3"
 	local mode="$4"
-	shift 4
+	local override="$5"
+	shift 5
 
 	[ ! -f "$template" ]                                && printf "$pf2" "Template \"$template\" does not exist" "`status r '' '' 'ERROR'`" && return 1
-	[ -f "$destination" -o -f "$destination.disabled" ] && printf "$pf2" "Template target \"$destination\" already in use" "`status r '' '' 'ERROR'`" && return 2
+	! $override && [ -f "$destination" -o -f "$destination.disabled" ] && printf "$pf2" "Template target \"$destination\" already in use" "`status r '' '' 'ERROR'`" && return 2
 
 	local sedCmd="sed"
 	while [ $# -gt 0 ]; do
@@ -502,6 +503,10 @@ case "$1" in
 			_OPT_DOMAINS="$_OPT_DOMAINS $1"
 			shift
 		done
+		;;
+	regenerate-config)
+		_OPT_ACTION="regenerate-config"
+		_OPT_USERNAME="$2"
 		;;
 	delete)
 		_OPT_ACTION="delete"
@@ -933,8 +938,8 @@ case "$_OPT_ACTION" in
 		fi
 
 		echo
-		install_template "$_NGINX_CONF_TEMPLATE" "${_NGINX_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_NGINX_CONF_TEMPLATE_OWNER" "$_NGINX_CONF_TEMPLATE_MODE" "USERNAME" "$_OPT_USERNAME" "DOMAINS" "$domains" || returnValue=1
-		install_template "$_PHP_FPM_CONF_TEMPLATE" "${_PHP_FPM_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_PHP_FPM_CONF_TEMPLATE_OWNER" "$_PHP_FPM_CONF_TEMPLATE_MODE" "USERNAME" "$_OPT_USERNAME" || returnValue=1
+		install_template "$_NGINX_CONF_TEMPLATE" "${_NGINX_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_NGINX_CONF_TEMPLATE_OWNER" "$_NGINX_CONF_TEMPLATE_MODE" "false" "USERNAME" "$_OPT_USERNAME" "DOMAINS" "$domains" || returnValue=1
+		install_template "$_PHP_FPM_CONF_TEMPLATE" "${_PHP_FPM_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_PHP_FPM_CONF_TEMPLATE_OWNER" "$_PHP_FPM_CONF_TEMPLATE_MODE" "false" "USERNAME" "$_OPT_USERNAME" || returnValue=1
 
 		echo
 		$0 _INTERNAL_ fixperm "$_OPT_USERNAME" || returnValue=1
@@ -958,6 +963,26 @@ case "$_OPT_ACTION" in
 			[ "$status" = "g" ] || returnValue=1
 			printf "$pf2" "Run _POST_CREATE_CMD..." "`status $status 'DONE' '' 'FAILED'`"
 		fi
+
+		stop $returnValue
+		;;
+
+	regenerate-config)
+		if [ "$status_nginx_exists" = "g" -o "$status_pool_exists" = "g" ]; then
+			printf "$pf2" "Please disable webspace first." "`status r '' '' 'ERROR'`"
+			stop 1
+		fi
+		domains="`echo $uFQDNS | xargs echo`" 
+
+		returnValue=0
+		status="g"
+		install_template "$_NGINX_CONF_TEMPLATE" "${_NGINX_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_NGINX_CONF_TEMPLATE_OWNER" "$_NGINX_CONF_TEMPLATE_MODE" "true" "USERNAME" "$_OPT_USERNAME" "DOMAINS" "$domains" || status="r"
+		printf "$pf2" "Regenerate NGINX configuration..." "`status $status 'DONE' '' 'FAILED'`"
+		[ "$status" = "g" ] || returnValue=1
+		
+		install_template "$_PHP_FPM_CONF_TEMPLATE" "${_PHP_FPM_CONF//@USERNAME@/$_OPT_USERNAME}.disabled" "$_PHP_FPM_CONF_TEMPLATE_OWNER" "$_PHP_FPM_CONF_TEMPLATE_MODE" "true" "USERNAME" "$_OPT_USERNAME" || status="r"
+		printf "$pf2" "Regenerate PHP-FPM configuration..." "`status $status 'DONE' '' 'FAILED'`"
+		[ "$status" = "g" ] || returnValue=1
 
 		stop $returnValue
 		;;

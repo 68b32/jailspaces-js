@@ -972,7 +972,14 @@ case "$_OPT_ACTION" in
 			printf "$pf2" "Please disable webspace first." "`status r '' '' 'ERROR'`"
 			stop 1
 		fi
-		domains="`echo $uFQDNS | xargs echo`" 
+
+		domains=""
+		for d in $uFQDNS; do
+			domains="$domains $d"
+		done;
+		echo "Dimains: $domains"
+		domains="`echo -e \"$domains\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'`"
+		
 
 		returnValue=0
 		status="g"
@@ -1230,6 +1237,10 @@ Usage: $0 <command> [<subcommand> [<subcommand>]] [<username>] [-n|-Y]
             Create a webspace associated with <username> with
             domains FQDN0 - FQDNn. If the domains are not provided
             from the commandline, they need to be provided interactively.
+
+        regenerate-config <username>:
+            Regenerate configuration for NGINX and PHP-FPM from
+            template files.
 
         status <username>:
             Show status of webspace associated with <username>

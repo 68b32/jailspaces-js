@@ -977,7 +977,6 @@ case "$_OPT_ACTION" in
 		for d in $uFQDNS; do
 			domains="$domains $d"
 		done;
-		echo "Dimains: $domains"
 		domains="`echo -e \"$domains\" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'`"
 		
 
